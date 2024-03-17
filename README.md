@@ -1,1 +1,1 @@
-# This Robot is a  Final Year Project which is Autonomous Fire Fighting Robot which is running Ros2 software 
+# This Robot is a Final Year Project, an Autonomous Fire Fighting Robot that runs Ros2 software 
