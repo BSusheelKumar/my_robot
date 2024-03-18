@@ -49,7 +49,6 @@ install(TARGETS my_robot
   LIBRARY DESTINATION lib
   RUNTIME DESTINATION bin
 )
-# target_link_libraries(fire_fighting_robot PUBLIC serial)
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
