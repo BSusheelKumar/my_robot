@@ -27,10 +27,11 @@ add_library(
   include/my_robot_system.cpp
 )
 target_link_libraries(my_robot PUBLIC serial)
+
 target_compile_features(my_robot PUBLIC cxx_std_17)
 target_include_directories(my_robot PUBLIC
-$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/hardware/include>
-$<INSTALL_INTERFACE:include/my_robot>
+$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
+$<INSTALL_INTERFACE:my_robot>
 )
 ament_target_dependencies(
   my_robot PUBLIC
