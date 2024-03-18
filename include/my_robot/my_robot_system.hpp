@@ -17,9 +17,9 @@
 #include "rclcpp_lifecycle/node_interfaces/lifecycle_node_interface.hpp"
 #include "rclcpp_lifecycle/state.hpp"
 
-#include "/home/bsusheelkumar/final_year_project/src/my_robot/include/my_robot/visibility_control.h"
-#include "/home/bsusheelkumar/final_year_project/src/my_robot/include/my_robot/arduino_comms.hpp"
-#include "/home/bsusheelkumar/final_year_project/src/my_robot/include/my_robot/wheel.hpp"
+#include "my_robot/visibility_control.h"
+#include "my_robot/arduino_comms.hpp"
+#include "my_robot/wheel.hpp"
 
 
 
