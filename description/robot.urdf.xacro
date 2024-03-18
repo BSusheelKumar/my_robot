@@ -2,10 +2,20 @@
 <robot xmlns:xacro="https://www.ros.org/wiki/xacro" name="my_robot">
 
 
+
+    <xacro:arg name="use_ros2_control" default="true"/>
+
     <xacro:include filename="robot_body.xacro"/>
     <xacro:include filename="lidar.xacro"/>
+    <xacro:include filename="camera.xacro"/>
 
-    <xacro:include filename="gazebo_control.xacro"/>
+
+    <xacro:if value="$(arg use_ros2_control)">
+        <xacro:include filename="ros2_control.xacro"/>
+    </xacro:if>
+    <xacro:unless value="$(arg use_ros2_control)">
+        <xacro:include filename="gazebo_control.xacro"/>
+    </xacro:unless>
 
     
 </robot>

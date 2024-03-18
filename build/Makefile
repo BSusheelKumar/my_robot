@@ -197,6 +197,69 @@ my_robot_uninstall/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/my_robot_uninstall.dir/build.make CMakeFiles/my_robot_uninstall.dir/build
 .PHONY : my_robot_uninstall/fast
 
+#=============================================================================
+# Target rules for targets named my_robot
+
+# Build rule for target.
+my_robot: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 my_robot
+.PHONY : my_robot
+
+# fast build rule for target.
+my_robot/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/my_robot.dir/build.make CMakeFiles/my_robot.dir/build
+.PHONY : my_robot/fast
+
+#=============================================================================
+# Target rules for targets named ament_cmake_python_copy_my_robot
+
+# Build rule for target.
+ament_cmake_python_copy_my_robot: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 ament_cmake_python_copy_my_robot
+.PHONY : ament_cmake_python_copy_my_robot
+
+# fast build rule for target.
+ament_cmake_python_copy_my_robot/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ament_cmake_python_copy_my_robot.dir/build.make CMakeFiles/ament_cmake_python_copy_my_robot.dir/build
+.PHONY : ament_cmake_python_copy_my_robot/fast
+
+#=============================================================================
+# Target rules for targets named ament_cmake_python_build_my_robot_egg
+
+# Build rule for target.
+ament_cmake_python_build_my_robot_egg: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 ament_cmake_python_build_my_robot_egg
+.PHONY : ament_cmake_python_build_my_robot_egg
+
+# fast build rule for target.
+ament_cmake_python_build_my_robot_egg/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ament_cmake_python_build_my_robot_egg.dir/build.make CMakeFiles/ament_cmake_python_build_my_robot_egg.dir/build
+.PHONY : ament_cmake_python_build_my_robot_egg/fast
+
+include/my_robot_system.o: include/my_robot_system.cpp.o
+.PHONY : include/my_robot_system.o
+
+# target to build an object file
+include/my_robot_system.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/my_robot.dir/build.make CMakeFiles/my_robot.dir/include/my_robot_system.cpp.o
+.PHONY : include/my_robot_system.cpp.o
+
+include/my_robot_system.i: include/my_robot_system.cpp.i
+.PHONY : include/my_robot_system.i
+
+# target to preprocess a source file
+include/my_robot_system.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/my_robot.dir/build.make CMakeFiles/my_robot.dir/include/my_robot_system.cpp.i
+.PHONY : include/my_robot_system.cpp.i
+
+include/my_robot_system.s: include/my_robot_system.cpp.s
+.PHONY : include/my_robot_system.s
+
+# target to generate assembly for a file
+include/my_robot_system.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/my_robot.dir/build.make CMakeFiles/my_robot.dir/include/my_robot_system.cpp.s
+.PHONY : include/my_robot_system.cpp.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -210,8 +273,14 @@ help:
 	@echo "... list_install_components"
 	@echo "... rebuild_cache"
 	@echo "... test"
+	@echo "... ament_cmake_python_build_my_robot_egg"
+	@echo "... ament_cmake_python_copy_my_robot"
 	@echo "... my_robot_uninstall"
 	@echo "... uninstall"
+	@echo "... my_robot"
+	@echo "... include/my_robot_system.o"
+	@echo "... include/my_robot_system.i"
+	@echo "... include/my_robot_system.s"
 .PHONY : help
 
 
