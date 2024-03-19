@@ -70,10 +70,7 @@ def generate_launch_description():
         on_start=[joint_broad_spawner],
     )
     )
-    camera = Node(package='v4l2_camera', executable='v4l2_camera_node',
-                        arguments=['--ros-args', '--param'
-                                   , 'video_device:="/dev/video0"'],
-                        output='screen')
+
 
 
     return LaunchDescription([
@@ -82,5 +79,4 @@ def generate_launch_description():
         delayed_controller_manager,
         delayed_diff_drive_spawner,
         delayed_joint_broad,
-        camera
     ])
