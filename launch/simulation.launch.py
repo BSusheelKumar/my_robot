@@ -6,9 +6,9 @@ from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch.actions import IncludeLaunchDescription
 from launch.launch_description_sources import PythonLaunchDescriptionSource
-
+from launch.substitutions import Command, FindExecutable, PathJoinSubstitution, LaunchConfiguration
 from launch_ros.actions import Node
-
+from launch_ros.substitutions import FindPackageShare
 
 
 def generate_launch_description():
@@ -45,10 +45,22 @@ def generate_launch_description():
         arguments=["joint_broad"],
     )
 
+    rviz_config_file = PathJoinSubstitution(
+        [FindPackageShare("my_robot"),"config","robot.rviz"]
+    )
+    rviz = Node(
+        package="rviz2",
+        executable="rviz2",
+        name="rviz2",
+        output="screen",
+        arguments=["-d",rviz_config_file,"use_sim_time:=true"]
+    )
+
     return LaunchDescription([
         rsp,
         gazebo,
         spawn_entity,
-        diff_drive_spawner,
-        joint_broad_spawner
+        # diff_drive_spawner,
+        # joint_broad_spawner,
+        rviz
     ])

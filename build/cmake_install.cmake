@@ -79,30 +79,6 @@ if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/my_robot/environment" TYPE FILE FILES "/home/bsusheelkumar/final_year_project/src/my_robot/build/ament_cmake_environment_hooks/pythonpath.sh")
-endif()
-
-if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/my_robot/environment" TYPE FILE FILES "/home/bsusheelkumar/final_year_project/src/my_robot/build/ament_cmake_environment_hooks/pythonpath.dsv")
-endif()
-
-if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/local/lib/python3.10/dist-packages/my_robot-0.0.0-py3.10.egg-info" TYPE DIRECTORY FILES "/home/bsusheelkumar/final_year_project/src/my_robot/build/ament_cmake_python/my_robot/my_robot.egg-info/")
-endif()
-
-if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/local/lib/python3.10/dist-packages/my_robot" TYPE DIRECTORY FILES "/home/bsusheelkumar/final_year_project/src/my_robot/my_robot/" REGEX "/[^/]*\\.pyc$" EXCLUDE REGEX "/\\_\\_pycache\\_\\_$" EXCLUDE)
-endif()
-
-if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
-  execute_process(
-        COMMAND
-        "/usr/bin/python3" "-m" "compileall"
-        "/usr/local/local/lib/python3.10/dist-packages/my_robot"
-      )
-endif()
-
-if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
   file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/my_robot" TYPE PROGRAM FILES "/home/bsusheelkumar/final_year_project/src/my_robot/scripts/py_node.py")
 endif()
 

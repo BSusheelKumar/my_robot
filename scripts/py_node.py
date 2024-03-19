@@ -16,7 +16,7 @@ class MyNode(Node):
         super().__init__("my_node")
         self.get_logger().info("testing cv2")
         self.model = YOLO('yolov8n.pt')
-        self.camera_sub = self.create_subscription(Image,"/image_raw",self.camera_callback,10)
+        self.camera_sub = self.create_subscription(Image,"image_raw",self.camera_callback,10)
         self.bridge = CvBridge()
     def camera_callback(self,data):
         img = self.bridge.imgmsg_to_cv2(data,"bgr8")
