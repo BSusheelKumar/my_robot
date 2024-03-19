@@ -79,4 +79,8 @@ install(PROGRAMS scripts/camera_detect.py
        DESTINATION lib/${PROJECT_NAME}
 )
 
+install(PROGRAMS scripts/single_nav.py
+       DESTINATION lib/${PROJECT_NAME}
+)
+
 ament_package()
