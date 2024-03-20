@@ -6,6 +6,7 @@ import rclpy
 from rclpy.duration import Duration
 
 from Adafruit_IO import Client, RequestError, Feed
+from playsound import playsound
 
 # Set to your Adafruit IO key.
 # Remember, your key is a secret,
@@ -66,7 +67,7 @@ def main():
         data = aio.receive(smoke.key)
         print('Latest value from smoke detector: {0}'.format(data.value))
         if data.value == '1':
-
+            playsound("/home/bsusheelkumar/final_year_project/jaldhi waha se hato.mp3")
             navigator.goToPose(goal_pose)
 
             i = 0

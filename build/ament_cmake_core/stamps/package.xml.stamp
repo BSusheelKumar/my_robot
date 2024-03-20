@@ -22,6 +22,8 @@
   <depend>cv_bridge</depend>
   <depend>ultralytics</depend>
   <depend>cv2</depend>
+  <depend>playsound</depend>
+
 
   <exec_depend>controller_manager</exec_depend>
   <exec_depend>diff_drive_controller</exec_depend>
