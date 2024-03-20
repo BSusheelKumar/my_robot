@@ -23,6 +23,8 @@
   <depend>ultralytics</depend>
   <depend>cv2</depend>
   <depend>playsound</depend>
+  <depend>geometry_msgs</depend>
+
 
 
   <exec_depend>controller_manager</exec_depend>
