@@ -82,5 +82,11 @@ install(PROGRAMS scripts/camera_detect.py
 install(PROGRAMS scripts/single_nav.py
        DESTINATION lib/${PROJECT_NAME}
 )
+install(PROGRAMS scripts/fire_detect.py
+       DESTINATION lib/${PROJECT_NAME}
+)
+install(PROGRAMS scripts/obstacle_avoid.py
+       DESTINATION lib/${PROJECT_NAME}
+)
 
 ament_package()
