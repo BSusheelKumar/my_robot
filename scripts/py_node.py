@@ -50,7 +50,7 @@ class MyNode(Node):
                 cls = int(box.cls[0])
 
                 if cls == 0:
-                    cv2.putText(img, f'{class_names[cls]} {conf}', (x_min, y_min - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 255), 2)
+                    cv2.putText(img, f'{self.class_names[cls]} {conf}', (x_min, y_min - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 255), 2)
                     x_diff = x_max - x_min
                     y_diff = y_max - y_min
 
