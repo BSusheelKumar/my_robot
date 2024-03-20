@@ -67,7 +67,7 @@ def main():
         data = aio.receive(smoke.key)
         print('Latest value from smoke detector: {0}'.format(data.value))
         if data.value == '1':
-            playsound("/home/bsusheelkumar/final_year_project/jaldhi waha se hato.mp3")
+            playsound("/home/bsusheelkumar/final_year_project/src/my_robot/jaldhi waha se hato.mp3")
             navigator.goToPose(goal_pose)
 
             i = 0
