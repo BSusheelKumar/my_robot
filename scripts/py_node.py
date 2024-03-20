@@ -93,7 +93,7 @@ class MyNode(Node):
 
         img_to_pub = self.bridge.cv2_to_imgmsg(img,"bgr8")
         self.img_pub.publish(img_to_pub)
-        cv2.imshow("output",img)
+        # cv2.imshow("output",img)
         cv2.waitKey(1)
 
 def main(args=None):
