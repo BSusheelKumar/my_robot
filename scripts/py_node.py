@@ -75,25 +75,25 @@ class MyNode(Node):
                     x_deviation = round(0.5-obj_x_centre,3)
                     y_max = round(y_max,3)
                     print("{",x_deviation,y_max,"}")
-                    if (abs(x_deviation) < tolerance):
+                    # if (abs(x_deviation) < tolerance):
                         
-                        if (y_max>0.9):
-                            self.send_vel_cmd(0.0,0.0)
-                        else:
-                            self.send_vel_cmd(1.0,0.0)
+                    #     if (y_max>0.9):
+                    #         self.send_vel_cmd(0.0,0.0)
+                    #     else:
+                    #         self.send_vel_cmd(1.0,0.0)
 
-                    else:
-                        if (x_deviation>=tolerance):
-                            time.sleep(1)
-                            self.send_vel_cmd(0.0,1.0)
+                    # else:
+                    #     if (x_deviation>=tolerance):
+                    #         time.sleep(1)
+                    #         self.send_vel_cmd(0.0,1.0)
 
-                        if (x_deviation<= -1 +tolerance):
-                            time.sleep(1)
-                            self.send_vel_cmd(0.0,-1.0)
+                    #     if (x_deviation<= -1 +tolerance):
+                    #         time.sleep(1)
+                    #         self.send_vel_cmd(0.0,-1.0)
 
         img_to_pub = self.bridge.cv2_to_imgmsg(img,"bgr8")
         self.img_pub.publish(img_to_pub)
-        # cv2.imshow("output",img)
+        cv2.imshow("output",img)
         cv2.waitKey(1)
 
 def main(args=None):
