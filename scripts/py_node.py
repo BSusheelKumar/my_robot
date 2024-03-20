@@ -5,6 +5,7 @@ from sensor_msgs.msg import Image
 import cv2
 from cv_bridge import CvBridge
 from ultralytics import YOLO
+import math
 
 
 
@@ -17,6 +18,7 @@ class MyNode(Node):
         self.get_logger().info("testing cv2")
         self.model = YOLO('yolov8n.pt')
         self.camera_sub = self.create_subscription(Image,"image_raw",self.camera_callback,10)
+        self.img_pub = self.create_publisher(Image,"camera_output",1)
         self.bridge = CvBridge()
         self.class_names = [
     "person", "bicycle", "car", "motorcycle", "airplane",
@@ -61,8 +63,9 @@ class MyNode(Node):
                     y_max = round(y_max,3)
 
                     print("{",x_deviation,y_max,"}")
-
-        cv2.imshow("output",img)
+        img_to_pub = self.bridge.cv2_to_imgmsg(img,"bgr8")
+        self.img_pub.publish(img_to_pub)
+        # cv2.imshow("output",img)
         cv2.waitKey(1)
 
 def main(args=None):
