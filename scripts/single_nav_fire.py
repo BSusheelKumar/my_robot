@@ -69,24 +69,29 @@ class MyNode(Node):
                 tolerance=0.1
                 x_deviation=0
                 y_max=0
+                
 
-                self.cls = int(box.cls[0])
+                cls = int(box.cls[0])
+        def process_image(self,extin=False):
+                if extin==True:
+                    if cls == 0:
+                        cv2.putText(img, f'{self.class_names[cls]} {conf}', (x_min, y_min - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 255), 2)
+                        x_diff = x_max - x_min
+                        y_diff = y_max - y_min
 
-                if self.cls == 0:
-                    cv2.putText(img, f'{self.class_names[self.cls]} {conf}', (x_min, y_min - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 255), 2)
-                    x_diff = x_max - x_min
-                    y_diff = y_max - y_min
+                        obj_x_centre = x_min+(x_diff/2)
+                        obj_x_centre = round(obj_x_centre,3)
 
-                    obj_x_centre = x_min+(x_diff/2)
-                    obj_x_centre = round(obj_x_centre,3)
-
-                    x_deviation = round(0.5-obj_x_centre,3)
-                    y_max = round(y_max,3)
-                    print("{",x_deviation,y_max,"}")
+                        x_deviation = round(0.5-obj_x_centre,3)
+                        y_max = round(y_max,3)
+                        print("{",x_deviation,y_max,"}")
+                        GPIO.output(23,1)
+                    else:
+                        GPIO.output(23,0)
         img_to_pub = self.bridge.cv2_to_imgmsg(img,"bgr8")
         self.img_pub.publish(img_to_pub)
         # cv2.imshow("output",img)
-        cv2.waitKey(1)
+        # cv2.waitKey(1)
 def main():
     rclpy.init()
     node = MyNode()

@@ -19,7 +19,7 @@ class MyNode(Node):
     def  __init__(self):
         super().__init__("my_node")
         self.get_logger().info("testing cv2")
-        self.model = YOLO('final.pt')
+        self.model = YOLO('trained.pt')
         self.camera_sub = self.create_subscription(Image,"image_raw",self.camera_callback,10)
         self.img_pub = self.create_publisher(Image,"camera_output",1)
         # self.cmd_vel_pub = self.create_publisher(Twist,"/cmd_vel",10)
