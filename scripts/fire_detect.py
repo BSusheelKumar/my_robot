@@ -8,11 +8,11 @@ from ultralytics import YOLO
 import math
 from geometry_msgs.msg import Twist
 import time
-import RPi.GPIO as GPIO
+# import RPi.GPIO as GPIO
 
 
-GPIO.setmode(GPIO.BCM)
-GPIO.setmode(GPIO.OUT)
+# GPIO.setmode(GPIO.BCM)
+# GPIO.setmode(GPIO.OUT)
 
 class MyNode(Node):
 
@@ -56,9 +56,9 @@ class MyNode(Node):
                     x_deviation = round(0.5-obj_x_centre,3)
                     y_max = round(y_max,3)
                     print("{",x_deviation,y_max,"}")
-                    GPIO.output(23,1)
-                else:
-                    GPIO.output(23,0)
+                #     GPIO.output(23,1)
+                # else:
+                #     # GPIO.output(23,0)
 
         img_to_pub = self.bridge.cv2_to_imgmsg(img,"bgr8")
         self.img_pub.publish(img_to_pub)
