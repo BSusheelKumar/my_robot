@@ -89,4 +89,8 @@ install(PROGRAMS scripts/obstacle_avoid.py
        DESTINATION lib/${PROJECT_NAME}
 )
 
+install(PROGRAMS scripts/sim_single_nav.py
+       DESTINATION lib/${PROJECT_NAME}
+)
+
 ament_package()
