@@ -20,13 +20,14 @@ class MyNode(Node):
     def  __init__(self):
         super().__init__("my_node")
         self.get_logger().info("testing cv2")
-        self.model = YOLO('/home/bsusheelkumar/final_year_project/src/my_robot/trained.pt')
+        self.model = YOLO('/home/robot/project/src/my_robot/trained.pt')
         self.camera_sub = self.create_subscription(Image,"image_raw",self.camera_callback,10)
         self.img_pub = self.create_publisher(Image,"camera_output",1)
         # self.cmd_vel_pub = self.create_publisher(Twist,"/cmd_vel",10)
         # self.timer = self.create_timer(0.5,self.send_vel_cmd)
         self.class_names = ['fire']
         self.bridge = CvBridge()
+        self.if_fire_detected = False
         
 
     def camera_callback(self,data):
@@ -49,10 +50,14 @@ class MyNode(Node):
 
 
                 if cls == 0:  # Fire is detected
+                    
                     cv2.putText(img, "Fire Detected", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 0, 255), 2)  # Add this line
+                    self.if_fire_detected = True
                     GPIO.output(23, GPIO.HIGH)
                 else:
-                    GPIO.output(23, GPIO.LOW)
+                    self.if_fire_detected = False
+        if not self.if_fire_detected:
+            GPIO.output(23, GPIO.LOW)
         img_to_pub = self.bridge.cv2_to_imgmsg(img,"bgr8")
         self.img_pub.publish(img_to_pub)
         # cv2.imshow("output",img)
