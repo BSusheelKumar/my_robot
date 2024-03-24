@@ -10,12 +10,12 @@ from geometry_msgs.msg import Twist
 import time
 
 
-class MyNode(Node):
+class SimpleFire(Node):
     def __init__(self):
         super().__init__("my_node")
-        self.get_logger().info("testing cv2")
-        self.camera_sub = self.create_subscription(Image, "image_raw", self.camera_callback, 10)
-        self.img_pub = self.create_publisher(Image, "camera_output", 1)
+        self.get_logger().info("testing fire tracking")
+        self.camera_sub = self.create_subscription(Image, "/image_raw", self.camera_callback, 10)
+        self.img_pub = self.create_publisher(Image, "/camera_output", 1)
         self.class_names = ['fire']
         self.bridge = CvBridge()
         self.fire_detected = False  # Track if fire is detected
@@ -40,10 +40,10 @@ class MyNode(Node):
             frame_width_middle = img.shape[1] / 2
             if x < frame_width_middle - 50:
                 print("Fire detected on the left side")
-                self.send_cmd_vel(0.0,1.0)
+                self.send_cmd_vel(0.0,3.0)
             elif x > frame_width_middle + 50:
                 print("Fire detected on the right side")
-                self.send_cmd_vel(0.0,-1.0)
+                self.send_cmd_vel(0.0,-3.0)
             else:
                 print("Fire detected in the middle")
                 self.send_cmd_vel(0.0,0.0)
@@ -63,7 +63,7 @@ class MyNode(Node):
 
 def main(args=None):
     rclpy.init(args=args)
-    node = MyNode()
+    node = SimpleFire()
     rclpy.spin(node)
     rclpy.shutdown()
     # GPIO.cleanup()

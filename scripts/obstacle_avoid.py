@@ -2,52 +2,60 @@
 
 import rclpy
 from rclpy.node import Node
-from sensor_msgs.msg import LaserScan
+from sensor_msgs.msg import Image
 from geometry_msgs.msg import Twist
+from cv_bridge import CvBridge
+import cv2
+import time
 
-
-class Obstacle_node(Node):
+class MyNode(Node):
     def __init__(self):
-        super().__init__("obstacle_avoiding")
-        self.subscription = self.create_subscription(LaserScan,"/scan",self.scan_callback,10)
-        self.publisher = self.create_publisher(Twist,"/cmd_vel",10)
-        self.timer = self.create_timer(0.1,self.publish_velocities)
-        self.min_distance_threshold = 0.2
-        self.scan_data = []
-        self.g_range_ahead = 1
+        super().__init__("my_node")
+        self.get_logger().info("Testing fire tracking")
+        self.camera_sub = self.create_subscription(Image, "/image_raw", self.camera_callback, 10)
+        self.cmd_vel_pub = self.create_publisher(Twist, "/cmd_vel", 10)
+        self.bridge = CvBridge()
+        self.fire_cascade = cv2.CascadeClassifier('/home/robot/project/src/my_robot/fire_detection.xml')
+        self.target_x = None
+        self.image_width = None
+        self.k_p = 0.001  # Proportional control gain
+        self.timer = self.create_timer(0.1, self.send_cmd_vel)
 
-    def scan_callback(self,msg):
-        
-        self.scan_data = msg.ranges
-        self.g_range_ahead = min(msg.ranges[:60] + msg.ranges[-60:])
+    def send_cmd_vel(self):
+        if self.target_x is None or self.image_width is None:
+            # Stop the robot if no fire detected
+            self.stop_robot()
+            return
 
+        error = self.target_x - self.image_width / 2  # Calculate error (difference from center)
+        angular_vel = self.k_p * error  # Proportional control: angular velocity proportional to error
 
-    def publish_velocities(self):
-        twist = Twist()
-        driving_forward = True
-        if driving_forward:
-            if self.g_range_ahead < 1.0:
-                driving_forward = False
-            else:
-                driving_forward = True
-        if driving_forward:
-            twist.linear.x = 0.1
+        move = Twist()
+        move.linear.x = 0.5  # Constant linear velocity
+        move.angular.z = angular_vel
+        self.cmd_vel_pub.publish(move)
+
+    def stop_robot(self):
+        # Stop the robot's motion
+        move = Twist()
+        self.cmd_vel_pub.publish(move)
+
+    def camera_callback(self, data):
+        img = self.bridge.imgmsg_to_cv2(data, "bgr8")
+        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        fire = self.fire_cascade.detectMultiScale(img, 1.2, 5)
+        if len(fire) > 0:  # If fire detected
+            (x, y, w, h) = fire[0]  # Use the first detected fire
+            self.target_x = x + w / 2  # Update target x-coordinate (center of the fire)
         else:
-            twist.angular.z = 1.0
-
-        self.publisher.publish(twist)
-
-
-
-
-
+            self.target_x = None  # No fire detected, reset target x-coordinate
+        self.image_width = img.shape[1]  # Get image width
 
 def main(args=None):
     rclpy.init(args=args)
-    node = Obstacle_node()
+    node = MyNode()
     rclpy.spin(node)
-    node.destroy_node()
     rclpy.shutdown()
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
