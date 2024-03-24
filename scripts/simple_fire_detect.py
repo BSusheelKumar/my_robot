@@ -19,7 +19,7 @@ class MyNode(Node):
         self.class_names = ['fire']
         self.bridge = CvBridge()
         self.fire_detected = False  # Track if fire is detected
-        self.fire_cascade = cv2.CascadeClassifier('/home/bsusheelkumar/final_year_project/src/my_robot/fire_detection.xml')
+        self.fire_cascade = cv2.CascadeClassifier('/home/robot/project/src/my_robot/fire_detection.xml')
         self.start_time = time.time()
         self.frame_count = 0
         self.cmd_vel_pub = self.create_publisher(Twist,"/cmd_vel",10)
