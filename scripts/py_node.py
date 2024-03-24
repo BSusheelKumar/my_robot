@@ -20,7 +20,7 @@ class MyNode(Node):
         for (x, y, w, h) in fire:
             cv2.rectangle(img, (x, y), (x + w, y + h), (255, 0, 0), 2)
             print(f"Bounding box: x={x}, y={y}, width={w}, height={h}")
-        cv2.imshow('Fire Detection', img)
+        # cv2.imshow('Fire Detection', img)
         cv2.waitKey(1)
 
 def main(args=None):
