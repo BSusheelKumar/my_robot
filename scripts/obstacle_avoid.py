@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-
 import rclpy
 from rclpy.node import Node
 from sensor_msgs.msg import Image
@@ -19,6 +18,7 @@ class MyNode(Node):
         self.target_x = None
         self.image_width = None
         self.k_p = 0.001  # Proportional control gain
+        self.linear_speed = 0.2  # Linear velocity
         self.timer = self.create_timer(0.1, self.send_cmd_vel)
 
     def send_cmd_vel(self):
@@ -31,7 +31,7 @@ class MyNode(Node):
         angular_vel = self.k_p * error  # Proportional control: angular velocity proportional to error
 
         move = Twist()
-        move.linear.x = 0.5  # Constant linear velocity
+        move.linear.x = self.linear_speed  # Set linear velocity
         move.angular.z = angular_vel
         self.cmd_vel_pub.publish(move)
 
