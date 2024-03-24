@@ -8,11 +8,11 @@ from ultralytics import YOLO
 import math
 from geometry_msgs.msg import Twist
 import time
-import RPi.GPIO as GPIO
-GPIO.setmode(GPIO.BCM)
+# import RPi.GPIO as GPIO
+# GPIO.setmode(GPIO.BCM)
 
-# Set pin 23 (modify if using a different pin) as output
-GPIO.setup(18, GPIO.OUT)
+# # Set pin 23 (modify if using a different pin) as output
+# GPIO.setup(18, GPIO.OUT)
 class MyNode(Node):
     def __init__(self):
         super().__init__("my_node")
@@ -45,10 +45,10 @@ class MyNode(Node):
                                 cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 255), 2)
                     self.fire_detected = True  # Set flag when fire is detected
 
-        if self.fire_detected:
-            GPIO.output(18, 0)  # Turn on relay
-        else:
-            GPIO.output(18, 1)  # Turn off relay
+        # if self.fire_detected:
+        #     GPIO.output(18, 0)  # Turn on relay
+        # else:
+        #     GPIO.output(18, 1)  # Turn off relay
 
         img_to_pub = self.bridge.cv2_to_imgmsg(img, "bgr8")
         self.img_pub.publish(img_to_pub)
@@ -58,7 +58,7 @@ def main(args=None):
     node = MyNode()
     rclpy.spin(node)
     rclpy.shutdown()
-    GPIO.cleanup()
+    # GPIO.cleanup()
 
 if __name__ == "__main__":
     main()

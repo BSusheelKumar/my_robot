@@ -26,9 +26,12 @@ class MyNode(Node):
     
     def camera_callback(self,data):
         img = self.bridge.imgmsg_to_cv2(data,"bgr8")
-        fire_detected, _ = self.detect_fire(img)
+        fire_detected, fire_contours = self.detect_fire(img)
 
         if fire_detected:
+            cv2.drawContours(img, fire_contours, -1, (0, 0, 255), 2)
+            cv2.putText(img, 'Fire Detected!', (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
+
             print("Fire Detected")
 
         img_to_pub = self.bridge.cv2_to_imgmsg(img, "bgr8")
@@ -50,11 +53,11 @@ class MyNode(Node):
         mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel)
 
         # Find contours in the mask
-        contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        self.contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
         # Check if any contours (fire) are detected
-        if contours:
-            return True, contours
+        if self.contours:
+            return True, self.contours
         else:
             return False, []
         
