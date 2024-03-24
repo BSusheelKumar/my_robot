@@ -8,59 +8,30 @@ from ultralytics import YOLO
 import math
 from geometry_msgs.msg import Twist
 import time
-# import RPi.GPIO as GPIO
-# GPIO.setmode(GPIO.BCM)
-
-# # Set pin 23 (modify if using a different pin) as output
-# GPIO.setup(18, GPIO.OUT)
 
 class MyNode(Node):
     def __init__(self):
         super().__init__("my_node")
-        self.get_logger().info("Camera Started")
+        self.get_logger().info("testing cv2")
         self.camera_sub = self.create_subscription(Image, "image_raw", self.camera_callback, 10)
         self.img_pub = self.create_publisher(Image, "camera_output", 1)
         self.class_names = ['fire']
         self.bridge = CvBridge()
         self.fire_detected = False  # Track if fire is detected
-    
-    def camera_callback(self,data):
-        img = self.bridge.imgmsg_to_cv2(data,"bgr8")
-        fire_detected, fire_contours = self.detect_fire(img)
+        self.fire_cascade = cv2.CascadeClassifier('/home/robot/project/src/my_robot/fire_detection.xml')
 
-        if fire_detected:
-            cv2.drawContours(img, fire_contours, -1, (0, 0, 255), 2)
-            cv2.putText(img, 'Fire Detected!', (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
-
-            print("Fire Detected")
-
+    def camera_callback(self, data):
+        img = self.bridge.imgmsg_to_cv2(data, "bgr8")
+        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        fire = self.fire_cascade.detectMultiScale(img, 1.2, 5)
+        for (x,y,w,h) in fire:
+            cv2.rectangle(frame,(x-20,y-20),(x+w+20,y+h+20),(255,0,0),2)
+            roi_gray = gray[y:y+h, x:x+w]
+            roi_color = frame[y:y+h, x:x+w]
+            print("fire is detected")
+        
         img_to_pub = self.bridge.cv2_to_imgmsg(img, "bgr8")
         self.img_pub.publish(img_to_pub)
-    def detect_fire(self,frame):
-        # Convert frame to HSV color space
-        hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
-
-        # Define lower and upper bounds for fire color in HSV
-        lower_bound = (0, 100, 100)
-        upper_bound = (10, 255, 255)
-
-        # Create a mask to threshold the frame for the fire color
-        mask = cv2.inRange(hsv, lower_bound, upper_bound)
-
-        # Apply morphology operations to remove noise and smooth the mask
-        kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5))
-        mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernel)
-        mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel)
-
-        # Find contours in the mask
-        self.contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-
-        # Check if any contours (fire) are detected
-        if self.contours:
-            return True, self.contours
-        else:
-            return False, []
-        
 
 def main(args=None):
     rclpy.init(args=args)
