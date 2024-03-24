@@ -25,7 +25,7 @@ class MyNode(Node):
         self.cmd_vel_pub = self.create_publisher(Twist,"/cmd_vel",10)
         self.timer = self.create_timer(0.1,self.send_cmd_vel)
 
-    def send_cmd_vel(self,linear_val,angular_val):
+    def send_cmd_vel(self,linear_val=0.0,angular_val=0.0):
         move = Twist()
         move.linear.x = linear_val
         move.angular.z = angular_val
