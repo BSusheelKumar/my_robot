@@ -17,7 +17,7 @@ class MyNode(Node):
     def __init__(self):
         super().__init__("my_node")
         self.get_logger().info("testing cv2")
-        self.model = YOLO('/home/robot/project/src/my_robot/trained.pt')
+        self.model = YOLO('/home/bsusheelkumar/final_year_project/src/my_robot/trained.engine')
         self.camera_sub = self.create_subscription(Image, "image_raw", self.camera_callback, 10)
         self.img_pub = self.create_publisher(Image, "camera_output", 1)
         self.class_names = ['fire']
