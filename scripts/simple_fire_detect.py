@@ -8,16 +8,16 @@ from ultralytics import YOLO
 import math
 from geometry_msgs.msg import Twist
 import time
-import RPi.GPIO as GPIO
-GPIO.setmode(GPIO.BCM)
+# import RPi.GPIO as GPIO
+# GPIO.setmode(GPIO.BCM)
 
-# Set pin 23 (modify if using a different pin) as output
-GPIO.setup(18, GPIO.OUT)
+# # Set pin 23 (modify if using a different pin) as output
+# GPIO.setup(18, GPIO.OUT)
 
 class MyNode(Node):
     def __init__(self):
         super().__init__("my_node")
-        self.get_logger().info("testing cv2")
+        self.get_logger().info("Camera Started")
         self.camera_sub = self.create_subscription(Image, "image_raw", self.camera_callback, 10)
         self.img_pub = self.create_publisher(Image, "camera_output", 1)
         self.class_names = ['fire']
@@ -26,18 +26,11 @@ class MyNode(Node):
     
     def camera_callback(self,data):
         img = self.bridge.imgmsg_to_cv2(data,"bgr8")
-        cap = cv2.VideoCapture(img)
-        while cap.isOpened():
-            ret,frame = cap.read()
-            if not ret:
-                break
-            fire_detected, fire_contours = self.detect_fire(frame)
+        fire_detected, _ = self.detect_fire(img)
 
-            if fire_detected:
-                print("fire Detected")
-            if cv2.waitKey(1) & 0xFF == ord('q'):
-                cap.release()
-                break
+        if fire_detected:
+            print("Fire Detected")
+
         img_to_pub = self.bridge.cv2_to_imgmsg(img, "bgr8")
         self.img_pub.publish(img_to_pub)
     def detect_fire(self,frame):
@@ -71,7 +64,7 @@ def main(args=None):
     node = MyNode()
     rclpy.spin(node)
     rclpy.shutdown()
-    GPIO.cleanup()
+    # GPIO.cleanup()
 
 if __name__ == "__main__":
     main()
