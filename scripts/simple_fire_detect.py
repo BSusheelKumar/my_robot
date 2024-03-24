@@ -25,9 +25,9 @@ class MyNode(Node):
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         fire = self.fire_cascade.detectMultiScale(img, 1.2, 5)
         for (x,y,w,h) in fire:
-            cv2.rectangle(frame,(x-20,y-20),(x+w+20,y+h+20),(255,0,0),2)
+            cv2.rectangle(img,(x-20,y-20),(x+w+20,y+h+20),(255,0,0),2)
             roi_gray = gray[y:y+h, x:x+w]
-            roi_color = frame[y:y+h, x:x+w]
+            roi_color = img[y:y+h, x:x+w]
             print("fire is detected")
         
         img_to_pub = self.bridge.cv2_to_imgmsg(img, "bgr8")
