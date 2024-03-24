@@ -92,5 +92,9 @@ install(PROGRAMS scripts/obstacle_avoid.py
 install(PROGRAMS scripts/sim_single_nav.py
        DESTINATION lib/${PROJECT_NAME}
 )
+install(PROGRAMS scripts/simple_fire_detect.py
+       DESTINATION lib/${PROJECT_NAME}
+)
+
 
 ament_package()
