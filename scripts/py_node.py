@@ -5,6 +5,7 @@ from sensor_msgs.msg import Image
 from geometry_msgs.msg import Twist
 from cv_bridge import CvBridge
 import cv2
+import time
 
 class MyNode(Node):
     def __init__(self):
@@ -12,62 +13,75 @@ class MyNode(Node):
         self.get_logger().info("Testing fire tracking")
         self.camera_sub = self.create_subscription(Image, "/image_raw", self.camera_callback, 10)
         self.cmd_vel_pub = self.create_publisher(Twist, "/cmd_vel", 10)
+        self.img_pub = self.create_publisher(Image,"/output_image",1)
         self.bridge = CvBridge()
-        self.fire_cascade = cv2.CascadeClassifier('/home/robot/project/src/my_robot/fire_detection.xml')
+        self.fire_cascade = cv2.CascadeClassifier('/home/bsusheelkumar/final_year_project/src/my_robot/fire_detection.xml')
+        self.target_x = None
         self.image_width = None
-        self.image_height = None
-        self.margin_of_error = 20  # Margin of error for centering the bounding box
-        self.threshold_area = 5000  # Threshold area for stopping the robot
+        self.k_p = 0.001  # Proportional control gain
         self.linear_speed = 0.2  # Linear velocity
-        self.angular_speed = 0.3  # Angular velocity for rotation
-        self.stop_distance = 0.4  # Stop distance from the fire (40 cm)
+        self.stop_distance = 0.5  # Distance to stop when fire is detected (in meters, adjust as needed)
+        self.timer = self.create_timer(0.1, self.send_cmd_vel)
+
+    def send_cmd_vel(self):
+        if self.target_x is None or self.image_width is None:
+            # Stop the robot if no fire detected
+            self.stop_robot()
+            return
+
+        error = self.target_x - self.image_width / 2  # Calculate error (difference from center)
+        angular_vel = self.k_p * error  # Proportional control: angular velocity proportional to error
+
+        # Check if fire is within stopping distance based on bounding boxes
+        if self.is_fire_close_enough():
+            self.stop_robot()
+            return
+
+        move = Twist()
+        move.linear.x = self.linear_speed  # Set linear velocity
+        move.angular.z = angular_vel
+        self.cmd_vel_pub.publish(move)
+
+    def stop_robot(self):
+        # Stop the robot's motion
+        move = Twist()
+        self.cmd_vel_pub.publish(move)
 
     def camera_callback(self, data):
         img = self.bridge.imgmsg_to_cv2(data, "bgr8")
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-        fire = self.fire_cascade.detectMultiScale(img, 1.2, 5)
-        self.image_width = img.shape[1]
-        self.image_height = img.shape[0]
-        
-        for (x, y, width, height) in fire:
-            if abs(x + width / 2 - self.image_width / 2) < self.margin_of_error \
-                and abs(y + height / 2 - self.image_height / 2) < self.margin_of_error:
-                if width * height > self.threshold_area:
-                    self.stop_robot()
-                    return
-            elif x + width / 2 < self.image_width / 2:
-                # Fire detected on the left side, rotate left
-                self.rotate_left()
-            else:
-                # Fire detected on the right side, rotate right
-                self.rotate_right()
 
-        # If no fire detected or not in desired location, move forward
-        self.move_forward()
+        # Use the provided bounding boxes (replace if fire detection gives different data)
+        self.bounding_boxes = [
+            (241, 236, 121, 121),
+            (216, 215, 154, 154),
+            (220, 219, 154, 154),
+            # ... other bounding boxes from your measurements
+        ]
 
-    def move_forward(self):
-        move = Twist()
-        move.linear.x = self.linear_speed
-        move.angular.z = 0.0
-        self.cmd_vel_pub.publish(move)
+        if len(self.bounding_boxes) > 0:  # If any bounding boxes present
+            self.target_x = (self.bounding_boxes[0][0] + self.bounding_boxes[0][0] + self.bounding_boxes[0][2]) // 2
+            # Assuming you want to stop based on the center of the first bounding box
+        else:
+            self.target_x = None  # No fire detected, reset target x-coordinate
 
-    def rotate_left(self):
-        move = Twist()
-        move.linear.x = 0.0
-        move.angular.z = self.angular_speed
-        self.cmd_vel_pub.publish(move)
+        self.image_width = img.shape[1]  # Get image width
+        img_to_pub = self.bridge.cv2_to_imgmsg(img, "bgr8")
+        self.img_pub.publish(img_to_pub)
 
-    def rotate_right(self):
-        move = Twist()
-        move.linear.x = 0.0
-        move.angular.z = -self.angular_speed
-        self.cmd_vel_pub.publish(move)
+    def is_fire_close_enough(self):
+        # Check if any bounding box center is within the stopping distance
+        if self.target_x is None:
+            return False
 
-    def stop_robot(self):
-        move = Twist()
-        move.linear.x = 0.0
-        move.angular.z = 0.0
-        self.cmd_vel_pub.publish(move)
+        for (x, y, w, h) in self.bounding_boxes:
+            fire_center_x = x + w // 2  # Calculate center of the bounding box
+            distance_to_fire = abs(fire_center_x - self.image_width / 2)  # Approximate distance based on image center
+
+            if distance_to_fire <= self.stop_distance * self.image_width:  # Check if within stopping distance
+                return True
+
+        return False  # No fire close enough
 
 def main(args=None):
     rclpy.init(args=args)
@@ -77,3 +91,4 @@ def main(args=None):
 
 if __name__ == "__main__":
     main()
+

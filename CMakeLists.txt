@@ -96,5 +96,9 @@ install(PROGRAMS scripts/simple_fire_detect.py
        DESTINATION lib/${PROJECT_NAME}
 )
 
+install(PROGRAMS scripts/single_nav_fire.py
+       DESTINATION lib/${PROJECT_NAME}
+)
+
 
 ament_package()
