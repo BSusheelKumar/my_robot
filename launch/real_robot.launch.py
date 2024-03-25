@@ -82,12 +82,11 @@ def generate_launch_description():
     )
     )
     delayed_lidar = RegisterEventHandler(
-        event_handler=OnExecutionComplete(
-            target_action=controller_manager,
-            on_completion=[lidar]
-        )
+    event_handler=OnProcessStart(
+        target_action=joint_broad_spawner,
+        on_start=[lidar],
     )
-
+    )
 
     return LaunchDescription([
         rsp,
