@@ -47,6 +47,7 @@ class MyNode(Node):
         if len(fire) > 0:  # If fire detected
             (x, y, w, h) = fire[0]  # Use the first detected fire
             self.target_x = x + w / 2  # Update target x-coordinate (center of the fire)
+            print(f"x{x} y{y}")
         else:
             self.target_x = None  # No fire detected, reset target x-coordinate
         self.image_width = img.shape[1]  # Get image width
