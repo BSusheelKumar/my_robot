@@ -1,26 +1,20 @@
 import os
-
-from ament_index_python.packages import get_package_share_directory
-
-
 from launch import LaunchDescription
-from launch.actions import IncludeLaunchDescription, TimerAction
-from launch.launch_description_sources import PythonLaunchDescriptionSource
-
 from launch_ros.actions import Node
-from launch.actions import RegisterEventHandler
-from launch.event_handlers import OnProcessStart
-from launch.substitutions import LaunchConfiguration, Command
-
 
 def generate_launch_description():
 
+    video_device = os.environ.get('video_device', "/dev/video0")  # Handle optional video_device parameter
 
-    camera = Node(package='v4l2_camera', executable='v4l2_camera_node',
-                        arguments=['--ros-args', '--param'
-                                   , 'video_device:="/dev/video0"'],
-                        output='screen')
-    
     return LaunchDescription([
-        camera
+
+        Node(
+            package='v4l2_camera',
+            executable='v4l2_camera_node',
+            output='screen',
+            arguments=[
+                '--ros-args',  # Pass ROS arguments explicitly
+                '--param', f'video_device:="{video_device}"'  # Set video_device parameter dynamically
+            ],
+        )
     ])
