@@ -15,7 +15,7 @@ class MyNode(Node):
         self.cmd_vel_pub = self.create_publisher(Twist, "/cmd_vel", 10)
         self.img_pub = self.create_publisher(Image,"/camera_output",1)
         self.bridge = CvBridge()
-        self.fire_cascade = cv2.CascadeClassifier('/home/bsusheelkumar/final_year_project/src/my_robot/fire_detection.xml')
+        self.fire_cascade = cv2.CascadeClassifier('/home/robot/project/src/my_robot/fire_detection.xml')
         self.target_x = None
         self.image_width = None
         self.k_p = 0.001  # Proportional control gain
