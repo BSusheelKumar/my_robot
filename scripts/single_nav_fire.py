@@ -28,7 +28,7 @@ class NavigationNode(Node):
             data = self.aio.receive(self.smoke.key)
             print('Latest value from smoke detector: {0}'.format(data.value))
             if data.value == '1':
-                playsound("/home/bsusheelkumar/final_year_project/src/my_robot/jaldhi waha se hato.mp3")
+                # playsound("/home/bsusheelkumar/final_year_project/src/my_robot/jaldhi waha se hato.mp3")
                 self.navigate_to_position(self.goal_position())
         except RequestError: # Doesn't exist, create a new feed
             feed = Feed(name="smoke")
@@ -86,6 +86,8 @@ class NavigationNode(Node):
             print('Goal was canceled!')
         elif result == TaskResult.FAILED:
             print('Goal failed!')
+            if self.last_successful_goal != self.initial_pose:
+                self.navigate_to_position(self.initial_pose)
         else:
             print('Goal has an invalid return status!')
 
