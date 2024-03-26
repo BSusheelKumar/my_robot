@@ -40,6 +40,7 @@ class MyNode(Node):
 
         # Check flame sensor for stopping near fire
         if self.is_fire_near():
+            print("Stopping Robot")
             self.stop_robot()
         else:
             move = Twist()
