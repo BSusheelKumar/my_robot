@@ -30,7 +30,7 @@ class MyNode(Node):
     def GPIO_setup(self):
         GPIO.setmode(GPIO.BCM)
         GPIO.setup(self.flame_pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-        GPIO.setup(self.realy_pin,GPIO.OUT)
+        # GPIO.setup(self.realy_pin,GPIO.OUT)
 
     def send_cmd_vel(self):
         if self.target_x is None or self.image_width is None:
