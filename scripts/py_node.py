@@ -7,9 +7,9 @@ class Send(Node):
     def __init__(self):
         super().__init__("sending_node")
         self.get_logger().info("Starting send")
-        self.send = self.create_publisher(String, "/sending", 10)
+        self.send = self.create_publisher(String, "/next", 10)
         self.timer = self.create_timer(0.1, self.send_callback)
-        self.msgs = ["hello", "hi", "yo","start_searching"]
+        self.msgs = ["start_searching"]
         self.index = 0
 
 
