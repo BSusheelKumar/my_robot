@@ -47,6 +47,7 @@ class MyNode(Node):
                 print("extinguishing")
             
         else:
+            self.fire_detected = False
             print("moving")
             move = Twist()
             move.linear.x = self.linear_speed  # Set linear velocity for approach
