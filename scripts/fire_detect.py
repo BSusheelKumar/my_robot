@@ -23,6 +23,7 @@ class MyNode(Node):
         self.flame_pin = 4  # GPIO pin connected to flame sensor (replace with actual pin)
         self.GPIO_setup()
         self.timer = self.create_timer(0.1, self.send_cmd_vel)
+        self.fire_detected = False
 
     def GPIO_setup(self):
         import RPi.GPIO as GPIO  # Import GPIO library here
@@ -41,7 +42,12 @@ class MyNode(Node):
         # Check flame sensor for stopping near fire
         if self.is_fire_near():
             self.stop_robot()
+            self.fire_detected = True
+            if self.fire_detected:
+                print("extinguishing")
+            
         else:
+            print("moving")
             move = Twist()
             move.linear.x = self.linear_speed  # Set linear velocity for approach
             move.angular.z = angular_vel
@@ -62,6 +68,7 @@ class MyNode(Node):
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         fire = self.fire_cascade.detectMultiScale(img, 1.2, 5)
         if len(fire) > 0:  # If fire detected
+            
             (x, y, w, h) = fire[0]  # Use the first detected fire
             self.target_x = x + w / 2  # Update target x-coordinate (center of the fire)
         else:
