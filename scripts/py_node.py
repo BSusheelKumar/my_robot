@@ -102,6 +102,7 @@ class MyNode(Node):
         if result == TaskResult.SUCCEEDED:
             print('Goal succeeded!')
             self.reached_fire_goal = True
+            
             # self.last_successful_goal = pos 
             # if self.last_successful_goal != self.initial_pose:
             #     self.navigate_to_position(self.initial_pose)
@@ -142,6 +143,7 @@ class MyNode(Node):
         # Check flame sensor for stopping near fire
         if self.is_fire_near():
             self.stop_robot()
+            print("Fire is Near me")
             self.fire_extinguish(True)
         else:
             self.fire_extinguish(False)
@@ -163,15 +165,19 @@ class MyNode(Node):
     def fire_extinguish(self,act=False):
         import RPi.GPIO as GPIO
         if act:
+            print("Turning On Pump")
             GPIO.output(self.relay_pin,GPIO.LOW)
         else:
+            print("Pump not turned On")
             GPIO.output(self.relay_pin,GPIO.HIGH)
     def camera_callback(self, data):
         if self.reached_fire_goal:
+            print("Running Image Processing")
             img = self.bridge.imgmsg_to_cv2(data, "bgr8")
             gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
             fire = self.fire_cascade.detectMultiScale(img, 1.2, 5)
             if len(fire) > 0:  # If fire detected
+                print("fire Detected")
                 (x, y, w, h) = fire[0]  # Use the first detected fire
                 self.target_x = x + w / 2  # Update target x-coordinate (center of the fire)
             else:
