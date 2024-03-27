@@ -28,11 +28,13 @@ class MyNode(Node):
         self.GPIO_setup_relay()
         self.recieve_signal = self.create_subscription(String,"/search_fire",self.read_callback,10)
         self.reached_goal = False
+        self.robot_at_goal = False
 
     def read_callback(self,msg):
         if msg.data == "reached_goal":
             self.get_logger().info("Reached Goal Starting Image Processing")
             self.reached_goal = True
+            
         else:
             self.get_logger().info("Goal Not Reached Yet")
             self.reached_goal = False
@@ -51,7 +53,10 @@ class MyNode(Node):
         GPIO.output(self.relay_pin, GPIO.HIGH) 
 
     def send_cmd_vel(self):
+        if not self.reached_goal:
+            return  
         if self.target_x is None or self.image_width is None:
+            print("no fire detected")
             # Stop the robot if no fire detected
             self.stop_robot()
             return
@@ -73,6 +78,11 @@ class MyNode(Node):
         move = Twist()
         self.cmd_vel_pub.publish(move)
 
+    def start_rotating(self):
+        move = Twist()
+        move.angular.z = 1.0
+        self.cmd_vel_pub.publish(move)
+
     def is_fire_near(self):
         import RPi.GPIO as GPIO
         flame_detected = GPIO.input(self.flame_pin)
@@ -81,21 +91,23 @@ class MyNode(Node):
             return True
         else:
             GPIO.output(self.relay_pin, GPIO.HIGH)
-            GPIO.cleanup()  # Turn off the relay if no fire detected
+            # GPIO.cleanup()  # Turn off the relay if no fire detected
             return False
 
     def camera_callback(self, data):
-        # if self.reached_goal:
-        img = self.bridge.imgmsg_to_cv2(data, "bgr8")
-        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-        fire = self.fire_cascade.detectMultiScale(img, 1.2, 5)
-        print("searching for fire")
-        if len(fire) > 0:  # If fire detected
-            (x, y, w, h) = fire[0]  # Use the first detected fire
-            self.target_x = x + w / 2  # Update target x-coordinate (center of the fire)
-        else:
-            self.target_x = None  # No fire detected, reset target x-coordinate
-        self.image_width = img.shape[1]  # Get image width
+         if self.reached_goal:
+            # self.start_rotating()
+            img = self.bridge.imgmsg_to_cv2(data, "bgr8")
+            gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+            fire = self.fire_cascade.detectMultiScale(img, 1.2, 5)
+            print("searching for fire")
+            if len(fire) > 0:
+                # self.stop_robot()  # If fire detected
+                (x, y, w, h) = fire[0]  # Use the first detected fire
+                self.target_x = x + w / 2  # Update target x-coordinate (center of the fire)
+            else:
+                self.target_x = None  # No fire detected, reset target x-coordinate
+            self.image_width = img.shape[1]  # Get image width
     # else:
     #     print("waiting for goal to be reached")
 

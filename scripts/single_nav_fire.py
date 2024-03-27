@@ -76,21 +76,21 @@ class NavigationNode(Node):
         self.initial_pose = PoseStamped()
         self.initial_pose.header.frame_id = 'map'
         self.initial_pose.header.stamp = self.navigator.get_clock().now().to_msg()
-        self.initial_pose.pose.position.x = 3.7720251083374023
+        self.initial_pose.pose.position.x = 0.007888883352279663
 
-        self.initial_pose.pose.position.y = -0.143662229180336
-        self.initial_pose.pose.orientation.z = -0.9999558873411405
-        self.initial_pose.pose.orientation.w =   0.00939272973061683
+        self.initial_pose.pose.position.y = -0.020847275853157043
+        self.initial_pose.pose.orientation.z = 0.013736764554940712
+        self.initial_pose.pose.orientation.w = 0.9999056461984611
         return self.initial_pose
 
     def goal_position(self):
         self.goal_pose = PoseStamped()
         self.goal_pose.header.frame_id = 'map'
         self.goal_pose.header.stamp = self.navigator.get_clock().now().to_msg()
-        self.goal_pose.pose.position.x = -0.01525208167731762
+        self.goal_pose.pose.position.x =  1.9190572500228882
 
-        self.goal_pose.pose.position.y =  -0.06627263873815536
-        self.goal_pose.pose.orientation.w = 0.23939881632676202
+        self.goal_pose.pose.position.y = 0.2880507707595825
+        self.goal_pose.pose.orientation.w = 0.9998969599032487
         return self.goal_pose
 
     def navigate_to_position(self, pos):
