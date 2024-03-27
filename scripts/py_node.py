@@ -9,13 +9,11 @@ from Adafruit_IO import Client, RequestError, Feed
 from playsound import playsound
 from rclpy.node import Node
 from std_msgs.msg import String
-
 from sensor_msgs.msg import Image
 from geometry_msgs.msg import Twist
 from cv_bridge import CvBridge
 import cv2
 import time
-from std_msgs.msg import String
 
 
 
@@ -27,15 +25,11 @@ class NavigationNode(Node):
         self.ADAFRUIT_IO_USERNAME = 'BSusheelKumar'
         self.aio = Client(self.ADAFRUIT_IO_USERNAME, self.ADAFRUIT_IO_KEY)
         self.navigator = BasicNavigator()
-        # self.send_search_signal = self.create_publisher(String,"/search_fire",10)
-        self.send_timer = self.create_timer(0.1,self.send_signal_callback)
         self.timer = self.create_timer(0.1,self.navigate_callback)
         self.initial_pose = None  # Store initial pose
         self.last_successful_goal = None 
-        
         self.goal_pose = None
         self.reached_goal = False
-        self.signal_sent = False
 
         self.get_logger().info("Testing fire tracking with stopping")
         self.camera_sub = self.create_subscription(Image, "/image_raw", self.camera_callback, 10)
@@ -54,20 +48,11 @@ class NavigationNode(Node):
         self.GPIO_setup_relay()
 
 
-    def send_signal_callback(self):
-        pass
-        # msg = String()
-        # if self.reached_goal == True:  # Create a std_msgs.msg.String message object
-        #     msg.data = "start_search"
-        #     self.send_search_signal.publish(msg)
-        # else:
-        #     msg.data = "not reached goal ,waiting"
-        #     self.send_search_signal.publish(msg)# Publish the std_msgs.msg.String message
-    
+
     def GPIO_setup(self):
         import RPi.GPIO as GPIO  # Import GPIO library here
         GPIO.setmode(GPIO.BCM)
-        GPIO.setup(self.flame_pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+        GPIO.setup(self.flame_pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)     
 
     def GPIO_setup_relay(self):
         import RPi.GPIO as GPIO
@@ -76,41 +61,40 @@ class NavigationNode(Node):
         GPIO.output(self.relay_pin, GPIO.HIGH) 
 
     def send_cmd_vel(self):
-        if self.reached_goal:
-            if self.target_x is None or self.image_width is None:
-                # Stop the robot if no fire detected
-                self.stop_robot()
-                return
+        if self.target_x is None or self.image_width is None:
+            # Stop the robot if no fire detected
+            self.stop_robot()
+            return
 
-            error = self.target_x - self.image_width / 2  # Calculate error (difference from center)
-            angular_vel = -self.k_p * error  # Proportional control: angular velocity proportional to error
+        error = self.target_x - self.image_width / 2  # Calculate error (difference from center)
+        angular_vel = -self.k_p * error  # Proportional control: angular velocity proportional to error
 
-            # Check flame sensor for stopping near fire
-            if self.is_fire_near():
-                self.stop_robot()
-            else:
-                move = Twist()
-                move.linear.x = self.linear_speed  # Set linear velocity for approach
-                move.angular.z = angular_vel
-                self.cmd_vel_pub.publish(move)
+        # Check flame sensor for stopping near fire
+        if self.is_fire_near():
+            self.stop_robot()
+        else:
+            move = Twist()
+            move.linear.x = self.linear_speed  # Set linear velocity for approach
+            move.angular.z = angular_vel
+            self.cmd_vel_pub.publish(move)
 
     def stop_robot(self):
-    # Stop the robot's motion
+        # Stop the robot's motion
         move = Twist()
         self.cmd_vel_pub.publish(move)
 
+
     def is_fire_near(self):
         import RPi.GPIO as GPIO
-        if self.reached_goal:
-            flame_detected = GPIO.input(self.flame_pin)
-            if flame_detected == 0:  # Check for LOW signal indicating fire
-                GPIO.output(self.relay_pin, GPIO.LOW)  # Turn on the relay if fire detected
-                return True
-            else:
-                GPIO.output(self.relay_pin, GPIO.HIGH)
-                # GPIO.cleanup()  # Turn off the relay if no fire detected
-                return False
-
+        flame_detected = GPIO.input(self.flame_pin)
+        if flame_detected == 0:  # Check for LOW signal indicating fire
+            GPIO.output(self.relay_pin, GPIO.LOW)  # Turn on the relay if fire detected
+            return True
+        else:
+            GPIO.output(self.relay_pin, GPIO.HIGH)
+            # GPIO.cleanup()  # Turn off the relay if no fire detected
+            return False
+        
     def camera_callback(self, data):
         if self.reached_goal:
             img = self.bridge.imgmsg_to_cv2(data, "bgr8")
@@ -126,7 +110,6 @@ class NavigationNode(Node):
         else:
             print("waiting for goal to be reached")
 
-        
     def connect_to_adafruit(self):
         self.get_logger().info("Connecting To Adafruit IO")
         try:
@@ -203,11 +186,6 @@ class NavigationNode(Node):
         if result == TaskResult.SUCCEEDED:
             print('Goal succeeded!')
             self.reached_goal = True
-            
-            msg = String()
-           
-            # msg.data = "reached_goal"
-            # self.send_search_signal.publish(msg)
             # self.last_successful_goal = pos 
             # if self.last_successful_goal != self.initial_pose:
             #     self.navigate_to_position(self.initial_pose)
@@ -222,7 +200,7 @@ class NavigationNode(Node):
         else:
             print('Goal has an invalid return status!')
 
-        # exit(0)
+        exit(0)
 
     def navigate_callback(self):
         self.initial_position()
