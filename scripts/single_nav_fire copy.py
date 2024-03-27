@@ -52,9 +52,9 @@ class NavigationNode(Node):
         self.goal_pose = PoseStamped()
         self.goal_pose.header.frame_id = 'map'
         self.goal_pose.header.stamp = self.navigator.get_clock().now().to_msg()
-        self.goal_pose.pose.position.x = -7.851898670196533
-        self.goal_pose.pose.position.y = 2.2073423862457275
-        self.goal_pose.pose.orientation.w = 0.7362738136290178
+        self.goal_pose.pose.position.x = 0.30447110533714294
+        self.goal_pose.pose.position.y = -0.00027904100716114044
+        self.goal_pose.pose.orientation.w = 0.014397560003548577
         return self.goal_pose
 
     def navigate_to_position(self, pos):

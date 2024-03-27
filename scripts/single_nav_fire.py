@@ -135,7 +135,7 @@ class NavigationNode(Node):
         else:
             print('Goal has an invalid return status!')
 
-        # exit(0)
+        exit(0)
 
     def navigate_callback(self):
         self.initial_position()
