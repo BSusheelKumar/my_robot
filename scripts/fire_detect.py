@@ -51,17 +51,18 @@ class MyNode(Node):
         GPIO.output(self.relay_pin, GPIO.HIGH) 
 
     def send_cmd_vel(self):
-        if self.target_x is None or self.image_width is None:
-            # Stop the robot if no fire detected
-            self.stop_robot()
-            return
+        if self.reached_goal:
+            if self.target_x is None or self.image_width is None:
+                # Stop the robot if no fire detected
+                self.stop_robot()
+                return
 
-        error = self.target_x - self.image_width / 2  # Calculate error (difference from center)
-        angular_vel = -self.k_p * error  # Proportional control: angular velocity proportional to error
+            error = self.target_x - self.image_width / 2  # Calculate error (difference from center)
+            angular_vel = -self.k_p * error  # Proportional control: angular velocity proportional to error
 
-        # Check flame sensor for stopping near fire
-        if self.is_fire_near():
-            self.stop_robot()
+            # Check flame sensor for stopping near fire
+            if self.is_fire_near():
+                self.stop_robot()
         else:
             move = Twist()
             move.linear.x = self.linear_speed  # Set linear velocity for approach
