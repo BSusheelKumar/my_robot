@@ -7,13 +7,10 @@ class Recieve(Node):
     def __init__(self):
         super().__init__("recieve")
         self.get_logger().info("Started rec")
-        self.recieve = self.create_subscription(String,"/sending",self.read_callback, 10)
+        self.recieve = self.create_subscription(String,"/search_fire",self.read_callback, 10)
 
     def read_callback(self,msg):
-        if msg.data == "hello":
             self.get_logger().info(f"recevied{msg.data}")
-        else:
-            self.get_logger().info("not received hello")
 
 
 def main(args=None):

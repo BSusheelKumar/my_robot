@@ -6,6 +6,7 @@ from geometry_msgs.msg import Twist
 from cv_bridge import CvBridge
 import cv2
 import time
+from std_msgs.msg import String
 
 class MyNode(Node):
     def __init__(self):
@@ -23,12 +24,31 @@ class MyNode(Node):
         self.flame_pin = 4  # GPIO pin connected to flame sensor (replace with actual pin)
         self.GPIO_setup()
         self.timer = self.create_timer(0.1, self.send_cmd_vel)
-        self.fire_detected = False
+        self.relay_pin = 27  # GPIO pin connected to relay (replace with actual pin)
+        self.GPIO_setup_relay()
+        self.recieve_signal = self.create_subscription(String,"/search_fire",self.read_callback,10)
+        self.reached_goal = False
+
+    def read_callback(self,msg):
+        if msg.data == "reached_goal":
+            self.get_logger().info("Reached Goal Starting Image Processing")
+            self.reached_goal = True
+        else:
+            self.get_logger().info("Goal Not Reached Yet")
+            self.reached_goal = False
+    
 
     def GPIO_setup(self):
         import RPi.GPIO as GPIO  # Import GPIO library here
         GPIO.setmode(GPIO.BCM)
         GPIO.setup(self.flame_pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+
+
+    def GPIO_setup_relay(self):
+        import RPi.GPIO as GPIO
+        GPIO.setmode(GPIO.BCM)
+        GPIO.setup(self.relay_pin, GPIO.OUT)
+        GPIO.output(self.relay_pin, GPIO.HIGH) 
 
     def send_cmd_vel(self):
         if self.target_x is None or self.image_width is None:
@@ -42,13 +62,7 @@ class MyNode(Node):
         # Check flame sensor for stopping near fire
         if self.is_fire_near():
             self.stop_robot()
-            self.fire_detected = True
-            if self.fire_detected:
-                print("extinguishing")
-            
         else:
-            self.fire_detected = False
-            print("moving")
             move = Twist()
             move.linear.x = self.linear_speed  # Set linear velocity for approach
             move.angular.z = angular_vel
@@ -60,21 +74,29 @@ class MyNode(Node):
         self.cmd_vel_pub.publish(move)
 
     def is_fire_near(self):
-        import RPi.GPIO as GPIO  # Import GPIO library here
+        import RPi.GPIO as GPIO
         flame_detected = GPIO.input(self.flame_pin)
-        return flame_detected == 0  # Check for LOW signal indicating fire
+        if flame_detected == 0:  # Check for LOW signal indicating fire
+            GPIO.output(self.relay_pin, GPIO.LOW)  # Turn on the relay if fire detected
+            return True
+        else:
+            GPIO.output(self.relay_pin, GPIO.HIGH)
+            # GPIO.cleanup()  # Turn off the relay if no fire detected
+            return False
 
     def camera_callback(self, data):
-        img = self.bridge.imgmsg_to_cv2(data, "bgr8")
-        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-        fire = self.fire_cascade.detectMultiScale(img, 1.2, 5)
-        if len(fire) > 0:  # If fire detected
-            
-            (x, y, w, h) = fire[0]  # Use the first detected fire
-            self.target_x = x + w / 2  # Update target x-coordinate (center of the fire)
+        if self.reached_goal:
+            img = self.bridge.imgmsg_to_cv2(data, "bgr8")
+            gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+            fire = self.fire_cascade.detectMultiScale(img, 1.2, 5)
+            if len(fire) > 0:  # If fire detected
+                (x, y, w, h) = fire[0]  # Use the first detected fire
+                self.target_x = x + w / 2  # Update target x-coordinate (center of the fire)
+            else:
+                self.target_x = None  # No fire detected, reset target x-coordinate
+            self.image_width = img.shape[1]  # Get image width
         else:
-            self.target_x = None  # No fire detected, reset target x-coordinate
-        self.image_width = img.shape[1]  # Get image width
+            print("waiting for goal to be reached")
 
 def main(args=None):
     rclpy.init(args=args)
