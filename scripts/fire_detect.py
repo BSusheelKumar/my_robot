@@ -81,23 +81,23 @@ class MyNode(Node):
             return True
         else:
             GPIO.output(self.relay_pin, GPIO.HIGH)
-            # GPIO.cleanup()  # Turn off the relay if no fire detected
+            GPIO.cleanup()  # Turn off the relay if no fire detected
             return False
 
     def camera_callback(self, data):
-        if self.reached_goal:
-            img = self.bridge.imgmsg_to_cv2(data, "bgr8")
-            gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-            fire = self.fire_cascade.detectMultiScale(img, 1.2, 5)
-            print("searching for fire")
-            if len(fire) > 0:  # If fire detected
-                (x, y, w, h) = fire[0]  # Use the first detected fire
-                self.target_x = x + w / 2  # Update target x-coordinate (center of the fire)
-            else:
-                self.target_x = None  # No fire detected, reset target x-coordinate
-            self.image_width = img.shape[1]  # Get image width
+        # if self.reached_goal:
+        img = self.bridge.imgmsg_to_cv2(data, "bgr8")
+        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        fire = self.fire_cascade.detectMultiScale(img, 1.2, 5)
+        print("searching for fire")
+        if len(fire) > 0:  # If fire detected
+            (x, y, w, h) = fire[0]  # Use the first detected fire
+            self.target_x = x + w / 2  # Update target x-coordinate (center of the fire)
         else:
-            print("waiting for goal to be reached")
+            self.target_x = None  # No fire detected, reset target x-coordinate
+        self.image_width = img.shape[1]  # Get image width
+    # else:
+    #     print("waiting for goal to be reached")
 
 def main(args=None):
     rclpy.init(args=args)
