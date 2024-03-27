@@ -51,7 +51,7 @@ class MyNode(Node):
         GPIO.output(self.relay_pin, GPIO.HIGH) 
 
     def send_cmd_vel(self):
-        if self.reached_goal:
+        if self.reached_goal == True:
             if self.target_x is None or self.image_width is None:
                 # Stop the robot if no fire detected
                 self.stop_robot()
@@ -70,9 +70,10 @@ class MyNode(Node):
             self.cmd_vel_pub.publish(move)
 
     def stop_robot(self):
-        # Stop the robot's motion
-        move = Twist()
-        self.cmd_vel_pub.publish(move)
+        if self.reached_goal ==True:
+            # Stop the robot's motion
+            move = Twist()
+            self.cmd_vel_pub.publish(move)
 
     def is_fire_near(self):
         import RPi.GPIO as GPIO
