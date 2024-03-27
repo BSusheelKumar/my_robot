@@ -89,6 +89,7 @@ class MyNode(Node):
             img = self.bridge.imgmsg_to_cv2(data, "bgr8")
             gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
             fire = self.fire_cascade.detectMultiScale(img, 1.2, 5)
+            print("searching for fire")
             if len(fire) > 0:  # If fire detected
                 (x, y, w, h) = fire[0]  # Use the first detected fire
                 self.target_x = x + w / 2  # Update target x-coordinate (center of the fire)
