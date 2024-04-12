@@ -14,6 +14,8 @@ class MyNode(Node):
         self.get_logger().info("Testing fire tracking with stopping")
         self.camera_sub = self.create_subscription(Image, "/image_raw", self.camera_callback, 10)
         self.cmd_vel_pub = self.create_publisher(Twist, "/cmd_vel", 10)
+        self.image_publisher = self.create_publisher(Image,"/fire_detection_image",10)
+        self.done_signal = self.create_publisher(String,"/done_with_fire",10)
         self.bridge = CvBridge()
         self.fire_cascade = cv2.CascadeClassifier('/home/robot/final_year_project/src/my_robot/fire_detection.xml')
         self.target_x = None
@@ -28,7 +30,8 @@ class MyNode(Node):
         self.GPIO_setup_relay()
         self.recieve_signal = self.create_subscription(String,"/search_fire",self.read_callback,10)
         self.reached_goal = False
-        self.robot_at_goal = False
+        self.fire_detected = False
+
 
     def read_callback(self,msg):
         if msg.data == "reached_goal":
@@ -61,15 +64,22 @@ class MyNode(Node):
             self.stop_robot()
             return
 
-        error = self.target_x - self.image_width / 2  # Calculate error (difference from center)
-        angular_vel = -self.k_p * error  # Proportional control: angular velocity proportional to error
+        error = self.target_x - self.image_width / 2  
+        angular_vel = -self.k_p * error 
 
-        # Check flame sensor for stopping near fire
         if self.is_fire_near():
             self.stop_robot()
+            msg = String()
+            if self.fire_detected ==False:
+                msg.data = "done"
+                self.done_signal.publish(msg)
+            else:
+                msg.data = "not done"
+                self.done_signal.publish(msg)
+
         else:
             move = Twist()
-            move.linear.x = self.linear_speed  # Set linear velocity for approach
+            move.linear.x = self.linear_speed 
             move.angular.z = angular_vel
             self.cmd_vel_pub.publish(move)
 
@@ -102,15 +112,18 @@ class MyNode(Node):
             fire = self.fire_cascade.detectMultiScale(img, 1.2, 5)
             print("searching for fire")
             if len(fire) > 0:
+                self.fire_detected = True
                 # self.stop_robot()  # If fire detected
                 (x, y, w, h) = fire[0]  # Use the first detected fire
                 self.target_x = x + w / 2  # Update target x-coordinate (center of the fire)
             else:
-                self.target_x = None  # No fire detected, reset target x-coordinate
-            self.image_width = img.shape[1]  # Get image width
+                self.fire_detected = False
+                self.target_x = None  
+            self.image_width = img.shape[1]  
     # else:
     #     print("waiting for goal to be reached")
-
+            img_to_pub = self.bridge.cv2_to_imgmsg(img,"bgr8")
+            self.image_publisher.publish(img_to_pub)
 def main(args=None):
     rclpy.init(args=args)
     node = MyNode()

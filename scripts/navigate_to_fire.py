@@ -21,6 +21,7 @@ class NavigationNode(Node):
         self.aio = Client(self.ADAFRUIT_IO_USERNAME, self.ADAFRUIT_IO_KEY)
         self.navigator = BasicNavigator()
         self.send_search_signal = self.create_publisher(String,"/search_fire",10)
+        self.check_done = self.create_subscription(String,"done_with_fire",self.done_callback,10)
         self.send_timer = self.create_timer(0.1,self.send_signal_callback)
         self.timer = self.create_timer(0.1,self.navigate_callback)
         self.initial_pose = None  # Store initial pose
@@ -29,6 +30,8 @@ class NavigationNode(Node):
         self.goal_pose = None
         self.reached_goal = False
         self.signal_sent = False
+        self.proceed_to_home = False
+        self.rbg_led = 23
 
 
     def send_signal_callback(self):
@@ -41,8 +44,16 @@ class NavigationNode(Node):
         #     msg.data = "not reached goal ,waiting"
         #     self.send_search_signal.publish(msg)# Publish the std_msgs.msg.String message
     
+    def done_callback(self,msg):
+        if msg.data == "done":
+            self.proceed_to_home = True
+        else:
+            self.proceed_to_home = False
 
     def connect_to_adafruit(self):
+        import RPi.GPIO as GPIO
+        GPIO.setmode(GPIO.BCM)
+        GPIO.setup(self.rbg_led,GPIO.OUT)
         self.get_logger().info("Connecting To Adafruit IO")
         try:
             self.smoke = self.aio.feeds('smoke')
@@ -56,19 +67,21 @@ class NavigationNode(Node):
             data = self.aio.receive(self.smoke.key)
             print('Latest value from smoke detector: {0}'.format(data.value))
             if data.value == '1':
+                GPIO.output(self.rbg_led,GPIO.HIGH)
                 self.navigate_to_position(self.goal_position())
 
             else:
-            # Wait for a value from the feed
+                GPIO.output(self.rbg_led,GPIO.LOW)
+            
                 while True:
-                    # Keep checking for new values
+                   
                     new_data = self.aio.receive(self.smoke.key)
                     
-                    if new_data.value != '1':  # Avoid unnecessary repetition
+                    if new_data.value != '1':  
                         print('Waiting for a non-1 value from the feed...')
                     else:
                         print('Received a non-1 value from the feed!')
-                        break  # Exit the inner loop when a non-1 value is received
+                        break  
 
 
 
@@ -76,21 +89,22 @@ class NavigationNode(Node):
         self.initial_pose = PoseStamped()
         self.initial_pose.header.frame_id = 'map'
         self.initial_pose.header.stamp = self.navigator.get_clock().now().to_msg()
-        self.initial_pose.pose.position.x = 0.007888883352279663
+        self.initial_pose.pose.position.x = 0.0023964811116456985
 
-        self.initial_pose.pose.position.y = -0.020847275853157043
-        self.initial_pose.pose.orientation.z = 0.013736764554940712
-        self.initial_pose.pose.orientation.w = 0.9999056461984611
+        self.initial_pose.pose.position.y = -0.04597257077693939
+        self.initial_pose.pose.orientation.z = 0.018879440663295163
+        self.initial_pose.pose.orientation.w = 0.9998217674767044
+
         return self.initial_pose
 
     def goal_position(self):
         self.goal_pose = PoseStamped()
         self.goal_pose.header.frame_id = 'map'
         self.goal_pose.header.stamp = self.navigator.get_clock().now().to_msg()
-        self.goal_pose.pose.position.x =  1.9190572500228882
+        self.goal_pose.pose.position.x = 1.7366971969604492
 
-        self.goal_pose.pose.position.y = 0.2880507707595825
-        self.goal_pose.pose.orientation.w = 0.9998969599032487
+        self.goal_pose.pose.position.y = 0.8917127251625061
+        self.goal_pose.pose.orientation.w =0.9997994208570505
         return self.goal_pose
 
     def navigate_to_position(self, pos):
@@ -121,9 +135,10 @@ class NavigationNode(Node):
             msg = String()
             msg.data = "reached_goal"
             self.send_search_signal.publish(msg)
-            # self.last_successful_goal = pos 
-            # if self.last_successful_goal != self.initial_pose:
-            #     self.navigate_to_position(self.initial_pose)
+            # if self.proceed_to_home:
+            #     self.last_successful_goal = pos 
+            #     if self.last_successful_goal != self.initial_pose:
+            #         self.navigate_to_position(self.initial_pose)
 
         elif result == TaskResult.CANCELED:
             print('Goal was canceled!')
@@ -134,8 +149,8 @@ class NavigationNode(Node):
             #     self.navigate_to_position(self.initial_pose)
         else:
             print('Goal has an invalid return status!')
-
-        exit(0)
+        
+        # exit(0)
 
     def navigate_callback(self):
         self.initial_position()
